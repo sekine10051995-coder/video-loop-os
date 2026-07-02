@@ -1,99 +1,310 @@
-🎬 Video Loop OS
+# 🎬 Video Loop OS
 
-AI employees that research, create, publish, analyze, and continuously improve short-form videos.
+> AI社員が市場を学び、動画を作り、分析し、毎日進化し続けるAI会社。
 
-Vision
+---
 
-Video Loop OS is an AI Operating System that automates the entire lifecycle of short-form content.
+# Video Loop OSとは
 
-Instead of simply generating videos, it builds an AI company where each AI employee has a specific role.
+Video Loop OSは、ショート動画を自動生成するツールではありません。
 
-Our long-term goal is to create a platform where anyone can operate an AI-powered media business.
+私たちが作るのは、
 
-⸻
+「AI社員が働く会社」
 
-Mission
+です。
 
-Build an AI company that:
+市場調査、企画、制作、投稿、分析、研究、経営。
 
-* Researches trends automatically
-* Plans content automatically
-* Creates videos automatically
-* Publishes automatically
-* Analyzes performance automatically
-* Improves itself every day
+これまで人が行ってきた仕事を、それぞれ専門のAI社員が担当します。
 
-The objective is not automation alone.
+そして、AI社員同士が協力しながら会社を運営し、毎日データを学習し続けます。
 
-The objective is continuous learning and optimization.
+投稿することが目的ではありません。
 
-⸻
+毎日少しずつ賢くなり続ける会社を作ること。
 
-AI Employees
+それがVideo Loop OSです。
 
-1. Research AI
+---
 
-* Collects trending topics from social platforms.
-* Finds promising content categories.
+# 私たちが解決したい課題
 
-2. Planner AI
+現在、多くのクリエイターや企業は次のような課題を抱えています。
 
-* Selects today’s best ideas.
-* Generates video concepts.
+- 何を投稿すれば伸びるのか分からない
+- 毎日投稿する時間がない
+- 動画を分析して改善する時間がない
+- 成功した理由、失敗した理由が分からない
+- 勘や経験に頼って運営している
 
-3. Creator AI
+Video Loop OSは、
 
-* Produces videos using AI tools.
+「経験」ではなく「データ」で判断する会社
 
-4. Publisher AI
+を目指します。
 
-* Schedules and publishes videos.
+---
 
-5. Analyst AI
+# Video Loop OSの考え方
 
-* Collects performance metrics.
-* Detects successful patterns.
+私たちの仕事は動画を投稿することではありません。
 
-6. Optimizer AI
+私たちの仕事は、
 
-* Improves tomorrow’s content based on today’s data.
+市場を学び続けること
 
-7. CEO AI
+です。
 
-* Makes strategic decisions for the entire system.
+動画は学習するための実験です。
 
-⸻
+1本の動画が成功しても失敗しても、
 
-Core Principles
+その結果は会社全体の知識になります。
 
-1. AI First
-2. Data First
-3. Experiment Continuously
-4. Automate Everything Possible
-5. Improve Every Day
+つまり、
 
-⸻
+動画が資産ではなく、データが資産です。
 
-MVP (Version 1)
+---
 
-The first version will:
+# AI会社の組織
 
-* Select a content theme
-* Generate five short videos
-* Publish automatically
-* Collect analytics
-* Recommend improvements for the next day
+## 👨‍💼 CEO AI（経営部）
 
-⸻
+会社全体の責任者です。
 
-Long-Term Goal
+各AI社員から報告を受け、
 
-Create the world’s best AI Operating System for content businesses.
+- 注力するジャンル
+- 投稿本数
+- 投稿時間
+- 新しい実験
 
-Every video makes the system smarter.
+など会社全体の戦略を決定します。
 
-Every experiment improves the company.
+CEO AIは動画を作りません。
 
-This is not just a video generator.
+会社を成長させることが仕事です。
 
-This is an AI company.
+---
+
+## 📊 AI市場調査部
+
+毎日、市場を調査します。
+
+調査対象
+
+- YouTube Shorts
+- TikTok
+- SNSトレンド
+- 急上昇ジャンル
+- 人気ハッシュタグ
+- 人気音源
+- 投稿時間
+- 世界のトレンド
+
+市場を分析し、
+
+「今どんな動画が伸びているか」
+
+を企画部へ報告します。
+
+---
+
+## 📝 AI企画部
+
+市場調査部のデータを受け取り、
+
+今日投稿する動画を企画します。
+
+例えば
+
+- テーマ
+- タイトル
+- 動画構成
+- 長さ
+- 投稿順
+- 使用する音源
+- 使用するハッシュタグ
+
+などを決定します。
+
+企画は勘ではなく、市場データから作成されます。
+
+---
+
+## 🎬 AI制作部
+
+企画部から受け取った内容をもとに、
+
+AI動画生成サービスを利用して動画を制作します。
+
+制作内容
+
+- 映像
+- 音声
+- BGM
+- 字幕
+- エフェクト
+
+などを自動生成します。
+
+---
+
+## 📤 AI投稿部
+
+完成した動画を投稿します。
+
+投稿するだけではありません。
+
+例えば
+
+- 12時に5本
+- 18時に5本
+- 21時に5本
+
+時間帯ごとに投稿し、
+
+投稿時間による違いも検証します。
+
+将来的には、
+
+AI自身が最適な投稿時間を決定します。
+
+---
+
+## 📈 AI分析部
+
+投稿した動画を分析します。
+
+分析項目
+
+- 再生数
+- 視聴維持率
+- 平均視聴時間
+- いいね率
+- コメント率
+- 保存率
+- シェア率
+- フォロワー増加数
+
+さらに、
+
+数字だけではなく
+
+「なぜこの結果になったのか」
+
+まで分析します。
+
+例えば
+
+- 冒頭3秒が弱い
+- テンポが遅い
+- 音量が小さい
+- タイトルが弱い
+- 投稿時間は最適だった
+
+など原因を特定します。
+
+---
+
+## 🔬 AI研究開発部（R&D）
+
+Video Loop OSの心臓部です。
+
+AI分析部から受け取ったデータを研究します。
+
+例えば
+
+- なぜバズったのか
+- なぜ伸びなかったのか
+- どのジャンルが強いのか
+- どの時間帯が最も伸びるのか
+- どんな動画構成が強いのか
+
+を研究します。
+
+そして
+
+翌日の動画だけでなく、
+
+会社全体のルールを改善します。
+
+---
+
+# AI会社の仕事の流れ
+
+毎日、会社では次のサイクルが動きます。
+
+1. 市場調査部が市場を分析する
+2. 企画部が投稿する動画を決定する
+3. 制作部が動画を制作する
+4. 投稿部が時間帯ごとに動画を投稿する
+5. 分析部が投稿結果を分析する
+6. 研究開発部が成功・失敗の原因を研究する
+7. CEO AIが会社全体の戦略を更新する
+
+このサイクルを毎日繰り返します。
+
+---
+
+# Video Loop OSの特徴
+
+普通の動画生成AIは、
+
+動画を作って終わります。
+
+Video Loop OSは違います。
+
+動画を投稿した後から、本当の仕事が始まります。
+
+投稿結果を学習し、
+
+改善し、
+
+会社そのものが毎日進化します。
+
+つまり、
+
+AI会社そのものが学習する仕組み
+
+です。
+
+---
+
+# 開発方針
+
+Video Loop OSでは、次の原則を大切にします。
+
+- AIファースト
+- データファースト
+- 小さく作って検証する
+- 一度やった作業は自動化する
+- 理解してから実装する
+- 常に会社を改善する
+- すべては仮説である
+- データが意見に勝つ
+
+---
+
+# 長期ビジョン
+
+最初はショート動画から始めます。
+
+その後、
+
+- ブログ
+- X
+- Instagram
+- EC
+- 広告運用
+- マーケティング
+
+へとAI社員を増やしていきます。
+
+最終的な目標は、
+
+世界中の誰でも、自分だけのAI会社を持てる世界を作ること。
+
+Video Loop OSは、その第一歩です
