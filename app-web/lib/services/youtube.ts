@@ -57,7 +57,9 @@ export async function getPopularVideos(): Promise<YouTubeVideo[]> {
 
   const response = await fetch(
     `https://www.googleapis.com/youtube/v3/videos?${params.toString()}`,
-    { cache: "no-store" }
+    {
+      cache: "no-store",
+    }
   );
 
   const data: YouTubeVideosResponse = await response.json();
@@ -71,7 +73,8 @@ export async function getPopularVideos(): Promise<YouTubeVideo[]> {
 
 export async function searchVideosByKeyword(
   keyword: string,
-  maxResults = 10
+  maxResults = 10,
+  publishedAfter?: string
 ): Promise<YouTubeVideo[]> {
   const apiKey = getApiKey();
 
@@ -86,12 +89,19 @@ export async function searchVideosByKeyword(
     key: apiKey,
   });
 
+  if (publishedAfter) {
+    searchParams.set("publishedAfter", publishedAfter);
+  }
+
   const searchResponse = await fetch(
     `https://www.googleapis.com/youtube/v3/search?${searchParams.toString()}`,
-    { cache: "no-store" }
+    {
+      cache: "no-store",
+    }
   );
 
-  const searchData: YouTubeSearchResponse = await searchResponse.json();
+  const searchData: YouTubeSearchResponse =
+    await searchResponse.json();
 
   if (!searchResponse.ok) {
     throw new Error(`「${keyword}」の動画検索に失敗しました。`);
@@ -113,10 +123,13 @@ export async function searchVideosByKeyword(
 
   const videoResponse = await fetch(
     `https://www.googleapis.com/youtube/v3/videos?${videoParams.toString()}`,
-    { cache: "no-store" }
+    {
+      cache: "no-store",
+    }
   );
 
-  const videoData: YouTubeVideosResponse = await videoResponse.json();
+  const videoData: YouTubeVideosResponse =
+    await videoResponse.json();
 
   if (!videoResponse.ok) {
     throw new Error(`「${keyword}」の動画詳細取得に失敗しました。`);
