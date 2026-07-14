@@ -54,6 +54,11 @@ type CollectedMarketVideo = {
   url: string;
 };
 
+type SaveResult = {
+  savedCount: number;
+  skippedCount: number;
+};
+
 function parseIsoDurationToSeconds(duration: string): number {
   const match = duration.match(
     /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/
@@ -97,14 +102,71 @@ function formatVideo(
   };
 }
 
+function getTodayRangeInJapan(): {
+  startOfDay: string;
+  endOfDay: string;
+} {
+  const todayInJapan = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  const startDate = new Date(`${todayInJapan}T00:00:00+09:00`);
+  const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+
+  return {
+    startOfDay: startDate.toISOString(),
+    endOfDay: endDate.toISOString(),
+  };
+}
+
 async function saveMarketVideos(
   videos: CollectedMarketVideo[]
-): Promise<number> {
+): Promise<SaveResult> {
   if (videos.length === 0) {
-    return 0;
+    return {
+      savedCount: 0,
+      skippedCount: 0,
+    };
   }
 
-  const rows = videos.map((video) => ({
+  const { startOfDay, endOfDay } = getTodayRangeInJapan();
+  const videoIds = videos.map((video) => video.videoId);
+
+  const { data: existingRows, error: selectError } =
+    await supabaseAdmin
+      .from("market_videos")
+      .select("video_id")
+      .gte("created_at", startOfDay)
+      .lt("created_at", endOfDay)
+      .in("video_id", videoIds);
+
+  if (selectError) {
+    throw new Error(
+      `保存済み動画の確認に失敗しました: ${selectError.message}`
+    );
+  }
+
+  const existingVideoIds = new Set(
+    (existingRows ?? []).map((row) => row.video_id)
+  );
+
+  const newVideos = videos.filter(
+    (video) => !existingVideoIds.has(video.videoId)
+  );
+
+  const skippedCount = videos.length - newVideos.length;
+
+  if (newVideos.length === 0) {
+    return {
+      savedCount: 0,
+      skippedCount,
+    };
+  }
+
+  const rows = newVideos.map((video) => ({
     video_id: video.videoId,
     genre_id: video.genreId,
     genre_name: video.genreName,
@@ -121,18 +183,21 @@ async function saveMarketVideos(
     thumbnail: video.thumbnail,
   }));
 
-  const { data, error } = await supabaseAdmin
+  const { data, error: insertError } = await supabaseAdmin
     .from("market_videos")
     .insert(rows)
     .select("id");
 
-  if (error) {
+  if (insertError) {
     throw new Error(
-      `Supabaseへの保存に失敗しました: ${error.message}`
+      `Supabaseへの保存に失敗しました: ${insertError.message}`
     );
   }
 
-  return data?.length ?? 0;
+  return {
+    savedCount: data?.length ?? 0,
+    skippedCount,
+  };
 }
 
 export async function collectMarketVideos() {
@@ -179,7 +244,8 @@ export async function collectMarketVideos() {
     ).values()
   ).sort((a, b) => b.viewCount - a.viewCount);
 
-  const savedCount = await saveMarketVideos(uniqueVideos);
+  const { savedCount, skippedCount } =
+    await saveMarketVideos(uniqueVideos);
 
   return {
     researchedAt: new Date().toISOString(),
@@ -192,6 +258,7 @@ export async function collectMarketVideos() {
     matchedCountBeforeDeduplication: collectedVideos.length,
     uniqueVideoCount: uniqueVideos.length,
     savedCount,
+    skippedCount,
     videos: uniqueVideos,
   };
 }
