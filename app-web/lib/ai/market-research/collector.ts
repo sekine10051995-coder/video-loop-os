@@ -3,10 +3,18 @@ import {
   type YouTubeVideo,
 } from "@/lib/services/youtube";
 import { supabaseAdmin } from "@/lib/supabase";
+import { createSearchStrategy } from "@/lib/ai/market-research/search-strategy-ai";
 
 const MIN_VIEW_COUNT = 200_000;
 const MAX_DURATION_SECONDS = 180;
 const RESEARCH_PERIOD_DAYS = 30;
+
+// 1ジャンルあたり最終的に保存したい動画数
+const TARGET_VIDEOS_PER_GENRE = 30;
+
+// YouTubeから1回の検索で取得する件数
+// 条件で除外される動画があるため、多めに取得する
+const SEARCH_RESULTS_PER_GENRE = 50;
 
 const MARKET_GENRES = [
   {
@@ -114,7 +122,9 @@ function getTodayRangeInJapan(): {
   }).format(new Date());
 
   const startDate = new Date(`${todayInJapan}T00:00:00+09:00`);
-  const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+  const endDate = new Date(
+    startDate.getTime() + 24 * 60 * 60 * 1000
+  );
 
   return {
     startOfDay: startDate.toISOString(),
@@ -200,11 +210,128 @@ async function saveMarketVideos(
   };
 }
 
+// 1つのジャンルについて、AIが作った検索キーワードで動画を集める関数
+// 1つのジャンルについて、AIが考え直しながら動画を集める関数
+async function collectGenreVideos(
+  genre: (typeof MARKET_GENRES)[number],
+  publishedAfter: string
+): Promise<CollectedMarketVideo[]> {
+  // Search Strategy AIへ相談した回数
+  let attempt = 0;
+
+  // すでに検索したキーワードを記録する
+  const usedKeywords: string[] = [];
+
+  // 集めた動画を動画IDごとに保存する
+  // 同じ動画が複数回見つかっても、1本として扱う
+  const collectedVideoMap = new Map<
+    string,
+    CollectedMarketVideo
+  >();
+
+  // 30本未満、かつAIへの相談が3回未満なら続ける
+  while (
+    collectedVideoMap.size < TARGET_VIDEOS_PER_GENRE &&
+    attempt < 3
+  ) {
+    attempt += 1;
+
+    console.log(
+      `Search Strategy AIへ相談: ${genre.name} ${attempt}回目`
+    );
+
+    // 現在の本数と、使用済みキーワードをAIへ伝える
+    const strategy = await createSearchStrategy(
+      genre.name,
+      collectedVideoMap.size,
+      TARGET_VIDEOS_PER_GENRE,
+      usedKeywords
+    );
+
+    console.log(
+      `Search Strategy AI結果: ${genre.name} ${attempt}回目`,
+      strategy
+    );
+
+    for (const keyword of strategy.keywords) {
+      // AIが以前と同じキーワードを返した場合は検索しない
+      if (usedKeywords.includes(keyword)) {
+        console.log(
+          `使用済みのためスキップ: ${genre.name} → ${keyword}`
+        );
+        continue;
+      }
+
+      // 検索済みキーワードとして記録する
+      usedKeywords.push(keyword);
+
+      console.log(
+        `検索中: ${genre.name} → ${keyword}`
+      );
+
+      const videos = await searchVideosByKeyword(
+        keyword,
+        SEARCH_RESULTS_PER_GENRE,
+        publishedAfter
+      );
+
+      const filteredVideos = videos
+        .map((video) => ({
+          ...formatVideo(video, genre),
+          searchKeyword: keyword,
+        }))
+        .filter(
+          (video) =>
+            video.viewCount >= MIN_VIEW_COUNT &&
+            video.durationSeconds > 0 &&
+            video.durationSeconds <= MAX_DURATION_SECONDS
+        );
+
+      // 動画IDを使って重複を除きながら追加する
+      for (const video of filteredVideos) {
+        if (!collectedVideoMap.has(video.videoId)) {
+          collectedVideoMap.set(video.videoId, video);
+        }
+      }
+
+      console.log(
+        `${genre.name}の現在の収集数: ` +
+          `${collectedVideoMap.size} / ${TARGET_VIDEOS_PER_GENRE}`
+      );
+
+      // 30本に到達したら、残りのキーワードは検索しない
+      if (
+        collectedVideoMap.size >= TARGET_VIDEOS_PER_GENRE
+      ) {
+        console.log(
+          `${genre.name}は目標の${TARGET_VIDEOS_PER_GENRE}本に到達しました`
+        );
+
+        break;
+      }
+    }
+  }
+
+  // 3回相談しても30本未満だった場合も、そのまま次へ進む
+  if (collectedVideoMap.size < TARGET_VIDEOS_PER_GENRE) {
+    console.log(
+      `${genre.name}は最大3回検索しましたが、` +
+        `${collectedVideoMap.size}本でした。そのまま次へ進みます。`
+    );
+  }
+
+  // 再生回数が多い順に並べ、最大30本だけ返す
+  return Array.from(collectedVideoMap.values())
+    .sort((a, b) => b.viewCount - a.viewCount)
+    .slice(0, TARGET_VIDEOS_PER_GENRE);
+}
+
 export async function collectMarketVideos() {
   const collectedVideos: CollectedMarketVideo[] = [];
   const genreResults = [];
 
   const publishedAfterDate = new Date();
+
   publishedAfterDate.setDate(
     publishedAfterDate.getDate() - RESEARCH_PERIOD_DAYS
   );
@@ -212,20 +339,10 @@ export async function collectMarketVideos() {
   const publishedAfter = publishedAfterDate.toISOString();
 
   for (const genre of MARKET_GENRES) {
-    const videos = await searchVideosByKeyword(
-      genre.searchKeyword,
-      10,
+    const filteredVideos = await collectGenreVideos(
+      genre,
       publishedAfter
     );
-
-    const filteredVideos = videos
-      .map((video) => formatVideo(video, genre))
-      .filter(
-        (video) =>
-          video.viewCount >= MIN_VIEW_COUNT &&
-          video.durationSeconds > 0 &&
-          video.durationSeconds <= MAX_DURATION_SECONDS
-      );
 
     collectedVideos.push(...filteredVideos);
 
@@ -233,7 +350,7 @@ export async function collectMarketVideos() {
       genreId: genre.id,
       genreName: genre.name,
       searchKeyword: genre.searchKeyword,
-      collectedCount: videos.length,
+      collectedCount: filteredVideos.length,
       matchedCount: filteredVideos.length,
     });
   }
